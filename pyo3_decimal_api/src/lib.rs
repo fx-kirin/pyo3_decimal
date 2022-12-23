@@ -6,6 +6,7 @@ use std::cell::UnsafeCell;
 use std::ffi::{CStr, CString};
 use std::os::raw::c_int;
 use std::ptr;
+use rust_decimal::Decimal;
 
 static PYO3_CAPSULE_API_NAME: &std::ffi::CStr =
     unsafe { std::mem::transmute::<_, &std::ffi::CStr>(concat!("pyo3_decimal._API", "\0")) };
@@ -18,9 +19,7 @@ struct PyO3Decimal_CAPI {
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
-pub struct PyDecimal {
-    inner: i64,
-}
+pub struct PyDecimal(Decimal);
 
 unsafe impl pyo3::type_object::PyTypeInfo for PyDecimal {
     type AsRefTarget = pyo3::PyCell<Self>;
@@ -92,6 +91,13 @@ impl pyo3::IntoPy<pyo3::PyObject> for PyDecimal {
     fn into_py(self, py: pyo3::Python) -> pyo3::PyObject {
         pyo3::IntoPy::into_py(pyo3::Py::new(py, self).unwrap(), py)
     }
+}
+
+impl From<PyDecimal> for Decimal {
+    fn from(value: PyDecimal) -> Self {
+        value.0
+    }
+
 }
 
 #[inline]
