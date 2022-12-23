@@ -1,4 +1,4 @@
-# Decimal implementation as User Custom API using PyO3
+# Decimal implementation as User Custom C API using PyO3
 
 `pyo3_decimal` for c extention python class.~
 
