@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyo3_decimal"
-version = "0.1.0"
+version = "1.0.0"
 description = "Decimal implemnted with PyO3."
 authors = ["fx kirin <fx.kirin@gmail.com>"]
 
