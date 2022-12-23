@@ -1,0 +1,15 @@
+[package]
+name = "pyo3_decimal_api"
+version = "0.1.0"
+authors = ["fx kirin <fx.kirin@gmail.com>"]
+edition = "2018"
+
+[lib]
+name = "pyo3_decimal_api"
+
+[dependencies]
+gdb_breakpoint = "0.1.8"
+
+[dependencies.pyo3]
+version = "0.16.4"
+features = ["extension-module"]
