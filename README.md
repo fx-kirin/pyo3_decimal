@@ -1,6 +1,4 @@
-# Decimal implementation with User Custom API using PyO3
-
-You can use `pyo3_decimal.Decimal` accross the pyo3 libraries like numpy-API. Using `CapsuleImport` to check its `PyTypeObject`.
+# Decimal implementation as User Custom API using PyO3
 
 `pyo3_decimal` for c extention python class.~
 
