@@ -11,5 +11,5 @@ name = "pyo3_decimal_api"
 gdb_breakpoint = "0.1.8"
 
 [dependencies.pyo3]
-version = "0.16.4"
+version = "0.16.6"
 features = ["extension-module"]
