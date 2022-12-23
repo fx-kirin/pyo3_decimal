@@ -1,6 +1,6 @@
 # Decimal implementation with User Custom API using PyO3
 
-You can use `pyo3_decimal.Decimal` accross the pyo3 libraries.
+You can use `pyo3_decimal.Decimal` accross the pyo3 libraries like numpy-API.
 
 `pyo3_decimal` for c extention python class.~
 
@@ -27,3 +27,5 @@ fn rust_binding(py: Python, m: &PyModule) -> PyResult<()> {
     Ok(())
 }
 ```
+
+I was hoping python's decimal C extention, but it seems not to come soon. So I decided to implement this library.
