@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "pyo3-capsule-api"
+name = "pyo3_decimal"
 version = "0.1.0"
-description = "Sweet Python Rust Package"
+description = "Decimal implemnted with PyO3."
 authors = ["fx kirin <fx.kirin@gmail.com>"]
 
 [build-system]
