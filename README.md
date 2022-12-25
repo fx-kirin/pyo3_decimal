@@ -1,10 +1,10 @@
 # Decimal implementation as User Custom C API using PyO3
 
-`pyo3_decimal` for c extention python class.
+`pyo3_decimal` for c extention python class as pyo3 library.
 
-`pyo3_decimal_api` for pyo3 libraries to use `pyo3_decimal.Decimal`.
+`pyo3_decimal_api` for rust library to use `pyo3_decimal.Decimal`.
 
-`pyo3_decimal_user` is an example.
+`pyo3_decimal_user` is an usage example.
 
 ``` rust
 use pyo3;
