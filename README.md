@@ -2,7 +2,7 @@
 
 `pyo3_decimal` for c extention python class as pyo3 library.
 
-`pyo3_decimal_api` for rust library to use `pyo3_decimal.Decimal`.
+`pyo3_decimal_api` for rust side pyo3 API library to use `pyo3_decimal.Decimal`.
 
 `pyo3_decimal_user` is an usage example.
 
