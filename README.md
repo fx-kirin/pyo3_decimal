@@ -4,7 +4,7 @@
 
 `pyo3_decimal_api` for pyo3 libraries to use `pyo3_decimal.Decimal`.
 
-`pyo3_decimal_user` is an example of implementation.
+`pyo3_decimal_user` is an example.
 
 ``` rust
 use pyo3;
