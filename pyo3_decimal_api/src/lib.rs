@@ -2,11 +2,11 @@ use pyo3;
 use pyo3::prelude::*;
 use pyo3::wrap_pyfunction;
 use pyo3::{ffi, PyResult, Python};
+use rust_decimal::Decimal;
 use std::cell::UnsafeCell;
 use std::ffi::{CStr, CString};
 use std::os::raw::c_int;
 use std::ptr;
-use rust_decimal::Decimal;
 
 static PYO3_CAPSULE_API_NAME: &std::ffi::CStr =
     unsafe { std::mem::transmute::<_, &std::ffi::CStr>(concat!("pyo3_decimal._API", "\0")) };
@@ -100,12 +100,26 @@ impl pyo3::IntoPy<pyo3::PyObject> for PyDecimal {
         pyo3::IntoPy::into_py(pyo3::Py::new(py, self).unwrap(), py)
     }
 }
-
-impl From<PyDecimal> for Decimal {
-    fn from(value: PyDecimal) -> Self {
-        value.0
+impl Into<Decimal> for PyDecimal {
+    fn into(self) -> Decimal {
+        self.0
     }
-
+}
+impl Into<PyDecimal> for Decimal {
+    fn into(self) -> PyDecimal {
+        PyDecimal(self)
+    }
+}
+impl std::ops::Deref for PyDecimal {
+    type Target = Decimal;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+impl std::ops::DerefMut for PyDecimal {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
 }
 
 #[inline]
@@ -127,7 +141,10 @@ unsafe fn PyDecimal_IMPORT() {
             let module = ffi::PyImport_ImportModule(module.as_ptr());
             assert!(!module.is_null(), "Failed to import pyo3_decimal module");
             let capsule = ffi::PyObject_GetAttrString(module as _, capsule.as_ptr());
-            assert!(!capsule.is_null(), "Failed to get pyo3_decimal.Decimal API capsule");
+            assert!(
+                !capsule.is_null(),
+                "Failed to get pyo3_decimal.Decimal API capsule"
+            );
             ffi::PyCapsule_GetPointer(capsule, PYO3_CAPSULE_API_NAME.as_ptr())
                 as *mut PyO3Decimal_CAPI
         }
