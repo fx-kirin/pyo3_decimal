@@ -11,6 +11,7 @@ crate-type = ["cdylib"]
 [dependencies]
 gdb_breakpoint = "0.1.8"
 pyo3_decimal_api = {path = "../pyo3_decimal_api"}
+rust_decimal = "1.27.0"
 
 [dependencies.pyo3]
 version = "0.16.6"

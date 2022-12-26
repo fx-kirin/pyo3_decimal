@@ -19,7 +19,7 @@ struct PyO3Decimal_CAPI {
 
 #[derive(Debug, Clone, Copy)]
 #[repr(C)]
-pub struct PyDecimal(Decimal);
+pub struct PyDecimal(pub Decimal);
 
 unsafe impl pyo3::type_object::PyTypeInfo for PyDecimal {
     type AsRefTarget = pyo3::PyCell<Self>;
@@ -65,7 +65,15 @@ impl pyo3::PyClass for PyDecimal {
     type WeakRef = pyo3::impl_::pyclass::PyClassDummySlot;
     type BaseNativeType = pyo3::PyAny;
 }
+
+impl<'a> pyo3::derive_utils::ExtractExt<'a> for &'a PyDecimal {
+    type Target = pyo3::PyRef<'a, PyDecimal>;
+}
+impl<'a> pyo3::derive_utils::ExtractExt<'a> for &'a mut PyDecimal {
+    type Target = pyo3::PyRefMut<'a, PyDecimal>;
+}
 struct Wrapper(PyCell<PyDecimal>);
+
 unsafe impl pyo3::PyNativeType for Wrapper {}
 
 fn ensure_decimal_api(_py: Python<'_>) -> &'static PyO3Decimal_CAPI {
