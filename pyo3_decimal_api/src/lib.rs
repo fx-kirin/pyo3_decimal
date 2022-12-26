@@ -88,7 +88,7 @@ fn ensure_decimal_api(_py: Python<'_>) -> &'static PyO3Decimal_CAPI {
 
 #[inline]
 /// Check if `op` is a `PyDateTimeAPI.DateTimeType` or subtype.
-unsafe fn PyDecimal_Check(op: *mut ffi::PyObject) -> c_int {
+pub unsafe fn PyDecimal_Check(op: *mut ffi::PyObject) -> c_int {
     ffi::PyObject_TypeCheck(
         op,
         ensure_decimal_api(Python::assume_gil_acquired()).DecimalType,
