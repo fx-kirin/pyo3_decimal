@@ -31,6 +31,24 @@ impl PyDecimal {
         arg2: Option<PyObject>,
         py: Python<'p>,
     ) -> pyo3::PyResult<PyDecimal> {
+        let py_int = arg1.cast_as::<pyo3::types::PyInt>(py);
+        if let Ok(content) = py_int {
+            let num: i128 = content.extract().unwrap();
+            let scale: u32 = if let Some(arg2) = arg2 {
+                let py_int = arg2.cast_as::<pyo3::types::PyInt>(py);
+                if let Ok(content) = py_int {
+                    content.extract().unwrap()
+                } else {
+                    return Err(pyo3::exceptions::PyValueError::new_err(format!(
+                        "arg2 is wrong value. {:?}",
+                        arg2
+                    )));
+                }
+            } else {
+                0
+            };
+            return Ok(Self(Decimal::from_i128_with_scale(num, scale)))
+        };
         let py_string = arg1.cast_as::<pyo3::types::PyString>(py);
         if let Ok(content) = py_string {
             let rust_str: &str = &content.to_str().unwrap();
@@ -61,30 +79,12 @@ impl PyDecimal {
             return Ok(Self(
                 Decimal::from_f64_retain(num).expect("Failed to load from float value"),
             ));
-        }
-        let py_int = arg1.cast_as::<pyo3::types::PyInt>(py);
-        let num: i128 = if let Ok(content) = py_int {
-            content.extract().unwrap()
         } else {
             return Err(pyo3::exceptions::PyValueError::new_err(format!(
                 "arg1 is wrong value. {:?}",
                 arg1
             )));
-        };
-        let scale: u32 = if let Some(arg2) = arg2 {
-            let py_int = arg2.cast_as::<pyo3::types::PyInt>(py);
-            if let Ok(content) = py_int {
-                content.extract().unwrap()
-            } else {
-                return Err(pyo3::exceptions::PyValueError::new_err(format!(
-                    "arg2 is wrong value. {:?}",
-                    arg2
-                )));
-            }
-        } else {
-            0
-        };
-        Ok(Self(Decimal::from_i128_with_scale(num, scale)))
+        }
     }
 
     pub const fn scale(&self) -> u32 {
