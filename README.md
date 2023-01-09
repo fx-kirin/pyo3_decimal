@@ -25,3 +25,7 @@ fn rust_binding(py: Python, m: &PyModule) -> PyResult<()> {
     Ok(())
 }
 ```
+
+## Blog
+
+[PyO3 で rust-decimal を C API 化する ](https://fx-kirin.com/python/pyo3-decimal-c-api/)
