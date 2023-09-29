@@ -244,6 +244,10 @@ impl PyDecimal {
         self.to_float()
     }
 
+    fn __abs__(&self) -> pyo3::PyResult<PyDecimal> {
+        Ok(self.0.abs().into())
+    }
+
     fn __format__(&self, format_spec: &str) -> pyo3::PyResult<String> {
         let text_length = format_spec.len();
         if text_length == 0 {
