@@ -11,7 +11,7 @@ import stdlogging
 from add_parent_path import add_parent_path
 
 with add_parent_path():
-    import pyo3_capsule_api
+    import pyo3_decimal
 
 
 def setup_module(module):
@@ -31,7 +31,8 @@ def teardown_function(function):
 
 
 def test_func():
-    pass
+    val = pyo3_decimal.Decimal(10)
+    assert int(val + pyo3_decimal.Decimal(20)), 30
 
 
 if __name__ == "__main__":

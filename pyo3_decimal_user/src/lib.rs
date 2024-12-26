@@ -10,7 +10,6 @@ fn decimal_test(a: PyDecimal) -> PyResult<PyDecimal> {
 }
 
 #[pyfunction]
-/// Formats the sum of two numbers as string
 fn cast_decimal(a: &mut PyDecimal) -> PyResult<PyDecimal> {
     a.0 = a.0 + Decimal::new(1, 0);
     Ok(a.0.into())
@@ -18,8 +17,9 @@ fn cast_decimal(a: &mut PyDecimal) -> PyResult<PyDecimal> {
 
 /// This module is a python module implemented in Rust.
 #[pymodule]
-fn rust_binding(py: Python, m: &PyModule) -> PyResult<()> {
+fn rust_binding(m: &Bound<'_, PyModule>) -> PyResult<()>  {
     m.add_wrapped(wrap_pyfunction!(decimal_test))?;
+    m.add_wrapped(wrap_pyfunction!(cast_decimal))?;
 
     Ok(())
 }

@@ -14,7 +14,7 @@ except ImportError:
 
 
 setup(name="pyo3-decimal",
-      version="1.1.0",
+      version="1.2.0",
       author="fx kirin",
       maintainer='fx kirin',
       author_email='fx.kirin@gmail.com',

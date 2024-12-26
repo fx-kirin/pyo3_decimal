@@ -10,6 +10,7 @@ use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use std::os::raw::c_void;
+use std::ops::Deref;
 
 use pyo3::ffi::PyTypeObject;
 
@@ -25,17 +26,17 @@ struct PyDecimal(Decimal);
 #[pymethods]
 impl PyDecimal {
     #[new]
-    #[args(arg1, arg2 = "None")]
+    #[pyo3(signature=(arg1, arg2 = None))]
     pub fn new<'p>(
         arg1: PyObject,
         arg2: Option<PyObject>,
         py: Python<'p>,
     ) -> pyo3::PyResult<PyDecimal> {
-        let py_int = arg1.cast_as::<pyo3::types::PyInt>(py);
+        let py_int = arg1.downcast_bound::<pyo3::types::PyInt>(py);
         if let Ok(content) = py_int {
             let num: i128 = content.extract().unwrap();
             let scale: u32 = if let Some(arg2) = arg2 {
-                let py_int = arg2.cast_as::<pyo3::types::PyInt>(py);
+                let py_int = arg2.downcast_bound::<pyo3::types::PyInt>(py);
                 if let Ok(content) = py_int {
                     content.extract().unwrap()
                 } else {
@@ -49,7 +50,7 @@ impl PyDecimal {
             };
             return Ok(Self(Decimal::from_i128_with_scale(num, scale)))
         };
-        let py_string = arg1.cast_as::<pyo3::types::PyString>(py);
+        let py_string = arg1.downcast_bound::<pyo3::types::PyString>(py);
         if let Ok(content) = py_string {
             let rust_str: &str = &content.to_str().unwrap();
             let result = rust_decimal::Decimal::from_str_exact(rust_str);
@@ -67,7 +68,7 @@ impl PyDecimal {
                 ))),
             };
         }
-        let py_float = arg1.cast_as::<pyo3::types::PyFloat>(py);
+        let py_float = arg1.downcast_bound::<pyo3::types::PyFloat>(py);
         if let Ok(content) = py_float {
             let num: f64 = content.extract().unwrap();
             if arg2.is_some() {
@@ -149,11 +150,11 @@ impl PyDecimal {
     }
 
     pub fn max(&self, other: PyDecimal) -> PyDecimal {
-        self.0.max(other.0).into()
+        self.0.max(*other.deref()).into()
     }
 
     pub fn min(&self, other: PyDecimal) -> PyDecimal {
-        self.0.min(other.0).into()
+        self.0.min(*other.deref()).into()
     }
 
     pub fn normalize(&self) -> PyDecimal {
@@ -189,24 +190,24 @@ impl PyDecimal {
         self.0.to_f64().unwrap()
     }
 
-    fn __add__(&self, other: &PyDecimal) -> pyo3::PyResult<PyDecimal> {
-        Ok((self.0 + other.0).into())
+    fn __add__(&self, other: &Bound<'_, PyDecimal>) -> pyo3::PyResult<PyDecimal> {
+        Ok((self.0 + other.extract::<PyDecimal>().unwrap().0).into())
     }
 
-    fn __sub__(&self, other: &PyDecimal) -> pyo3::PyResult<PyDecimal> {
-        Ok((self.0 - other.0).into())
+    fn __sub__(&self, other: &Bound<'_, PyDecimal>) -> pyo3::PyResult<PyDecimal> {
+        Ok((self.0 - other.extract::<PyDecimal>().unwrap().0).into())
     }
 
-    fn __mul__(&self, other: &PyDecimal) -> pyo3::PyResult<PyDecimal> {
-        Ok((self.0 * other.0).into())
+    fn __mul__(&self, other: &Bound<'_, PyDecimal>) -> pyo3::PyResult<PyDecimal> {
+        Ok((self.0 * other.extract::<PyDecimal>().unwrap().0).into())
     }
 
-    fn __truediv__(&self, other: &PyDecimal) -> pyo3::PyResult<PyDecimal> {
-        Ok((self.0 / other.0).into())
+    fn __truediv__(&self, other: &Bound<'_, PyDecimal>) -> pyo3::PyResult<PyDecimal> {
+        Ok((self.0 / other.extract::<PyDecimal>().unwrap().0).into())
     }
 
-    fn __floordiv__(&self, other: &PyDecimal) -> pyo3::PyResult<PyDecimal> {
-        Ok((self.0 / other.0).into())
+    fn __floordiv__(&self, other: &Bound<'_, PyDecimal>) -> pyo3::PyResult<PyDecimal> {
+        Ok((self.0 / other.extract::<PyDecimal>().unwrap().0).into())
     }
 
     fn __neg__(&self) -> pyo3::PyResult<PyDecimal> {
@@ -215,16 +216,16 @@ impl PyDecimal {
 
     fn __richcmp__(
         &self,
-        other: &PyDecimal,
+        other: &Bound<'_, PyDecimal>,
         op: pyo3::class::basic::CompareOp,
     ) -> pyo3::PyResult<bool> {
         match op {
-            pyo3::class::basic::CompareOp::Lt => Ok(self.0 < other.0),
-            pyo3::class::basic::CompareOp::Le => Ok(self.0 <= other.0),
-            pyo3::class::basic::CompareOp::Eq => Ok(self.0 == other.0),
-            pyo3::class::basic::CompareOp::Ne => Ok(self.0 != other.0),
-            pyo3::class::basic::CompareOp::Gt => Ok(self.0 > other.0),
-            pyo3::class::basic::CompareOp::Ge => Ok(self.0 >= other.0),
+            pyo3::class::basic::CompareOp::Lt => Ok(self.0 < other.extract::<PyDecimal>().unwrap().0),
+            pyo3::class::basic::CompareOp::Le => Ok(self.0 <= other.extract::<PyDecimal>().unwrap().0),
+            pyo3::class::basic::CompareOp::Eq => Ok(self.0 == other.extract::<PyDecimal>().unwrap().0),
+            pyo3::class::basic::CompareOp::Ne => Ok(self.0 != other.extract::<PyDecimal>().unwrap().0),
+            pyo3::class::basic::CompareOp::Gt => Ok(self.0 > other.extract::<PyDecimal>().unwrap().0),
+            pyo3::class::basic::CompareOp::Ge => Ok(self.0 >= other.extract::<PyDecimal>().unwrap().0),
         }
     }
 
@@ -331,11 +332,11 @@ impl PyDecimal {
         }
     }
     // Pickle
-    pub fn __setstate__(&mut self, state: &PyBytes) -> PyResult<()> {
+    pub fn __setstate__(&mut self, state: &Bound<'_, PyBytes>) -> PyResult<()> {
         *self = deserialize(state.as_bytes()).unwrap();
         Ok(())
     }
-    pub fn __getstate__<'py>(&self, py: Python<'py>) -> PyResult<&'py PyBytes> {
+    pub fn __getstate__<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyBytes>> {
         Ok(PyBytes::new(py, &serialize(&self).unwrap()))
     }
 
@@ -377,24 +378,28 @@ pub struct PyO3Decimal_CAPI {
 
 /// This module is a python module implemented in Rust.
 #[pymodule]
-fn pyo3_decimal(py: Python, m: &PyModule) -> PyResult<()> {
-    let decimal_type = PyDecimal::type_object_raw(py);
-    let mut _decimal_api = PyO3Decimal_CAPI {
-        DecimalType: decimal_type,
-    };
-    let mut _decimal_api = Box::new(_decimal_api);
-    unsafe {
-        // leak the value, so it will never be dropped or freed
-        PYO3_DECIMAL_CAPI = Box::leak(_decimal_api) as *const PyO3Decimal_CAPI;
-    }
+fn pyo3_decimal(m: &Bound<'_, PyModule>) -> PyResult<()>  {
+    Python::with_gil(|py| {
+        let decimal_type = PyDecimal::type_object_raw(py);
+        let mut _decimal_api = PyO3Decimal_CAPI {
+            DecimalType: decimal_type,
+        };
+        let mut _decimal_api = Box::new(_decimal_api);
+        unsafe {
+            // leak the value, so it will never be dropped or freed
+            PYO3_DECIMAL_CAPI = Box::leak(_decimal_api) as *const PyO3Decimal_CAPI;
+        }
+    });
     unsafe {
         let cap_ptr = PyCapsule_New(
             PYO3_DECIMAL_CAPI as *mut c_void,
             (*PYO3_CAPSULE_API_NAME).as_ptr(),
             None,
         );
-        let capsule: &PyCapsule = py.from_owned_ptr_or_err(cap_ptr)?;
-        m.add("_API", capsule)?;
+        Python::with_gil(|py| {
+            let capsule: &Bound<'_, PyAny> = &Bound::<'_, PyAny>::from_owned_ptr_or_err(py, cap_ptr).unwrap();
+            m.add("_API", capsule).unwrap();
+        })
     }
 
     m.add_class::<PyDecimal>()?;

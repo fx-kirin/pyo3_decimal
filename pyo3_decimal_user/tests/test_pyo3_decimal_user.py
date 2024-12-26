@@ -10,6 +10,8 @@ import pytest
 import stdlogging
 from add_parent_path import add_parent_path
 
+import pyo3_decimal
+import pyo3_decimal_user
 
 
 def setup_module(module):
@@ -29,12 +31,8 @@ def teardown_function(function):
 
 
 def test_func():
-    a = pyo3_capsule_api.PyExample(0)
-    print(a)
-    result = pyo3_capsule_user.rust_binding.decimal_test(a)
-    print(result)
-    result = pyo3_capsule_user.rust_binding.decimal_test(result)
-    print(result)
+    val = pyo3_decimal.Decimal(10)
+    assert pyo3_decimal_user.rust_binding.cast_decimal(val) == pyo3_decimal.Decimal(11)
 
 
 if __name__ == "__main__":
