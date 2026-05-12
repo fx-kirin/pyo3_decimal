@@ -1,13 +1,8 @@
-#![feature(c_str_literals)]
-#![feature(derive_clone_copy)]
-#![feature(fmt_helpers_for_derive)]
 use pyo3;
-use pyo3::prelude::*;
-use pyo3::wrap_pyfunction;
-use pyo3::{ffi, PyResult, Python};
+use pyo3::{ffi, Python};
 use rust_decimal::Decimal;
 use std::cell::UnsafeCell;
-use std::ffi::{CStr, CString};
+use std::ffi::CString;
 use std::os::raw::c_int;
 use std::ptr;
 
@@ -118,8 +113,8 @@ impl<'py> ::pyo3::conversion::IntoPyObject<'py> for PyDecimal {
         self,
         py: ::pyo3::Python<'py>,
     ) -> ::std::result::Result<
-        <Self as ::pyo3::conversion::IntoPyObject>::Output,
-        <Self as ::pyo3::conversion::IntoPyObject>::Error,
+        <Self as ::pyo3::conversion::IntoPyObject<'py>>::Output,
+        <Self as ::pyo3::conversion::IntoPyObject<'py>>::Error,
     > {
         ::pyo3::Bound::new(py, self)
     }
@@ -183,15 +178,14 @@ impl PyDecimal {}
 impl ::core::fmt::Debug for PyDecimal {
     #[inline]
     fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
-        ::core::fmt::Formatter::debug_tuple_field1_finish(f, "PyDecimal", &&self.0)
+        f.debug_tuple("PyDecimal").field(&self.0).finish()
     }
 }
 #[automatically_derived]
 impl ::core::clone::Clone for PyDecimal {
     #[inline]
     fn clone(&self) -> PyDecimal {
-        let _: ::core::clone::AssertParamIsClone<Decimal>;
-        *self
+        PyDecimal(self.0)
     }
 }
 #[automatically_derived]
